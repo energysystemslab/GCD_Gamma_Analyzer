@@ -1,10 +1,9 @@
 # GCD-γ Analyzer
 
 
-A web app to analyze galvanostatic charge-discharge (GCD) curves.
-It works for supercapacitors and battery-type devices. From a discharge
+A web app to analyze galvanostatic charge-discharge (GCD) curves of electrochemical energy storage devices. From a discharge
 curve it computes the gamma (γ) deviation coefficient, the real and ideal
-energy, and the power. It also draws the energy plot and a Ragone plot,
+energy, and the power. It also plots the energy  and a Ragone curves,
 and it is possible to download the figures and a results table as PDF.
 
 The method behind the tool:
