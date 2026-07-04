@@ -67,6 +67,6 @@ Sample files are in the "examples/" folder:
 This project is released under the MIT License. See  file named
 "LICENSE".
 
-# Contact
+Contact:
 Eric Pereira — expereira@shockers.wichita.edu
 
