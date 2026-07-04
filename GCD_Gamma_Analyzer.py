@@ -140,7 +140,7 @@ def get_units(device_type, normalization_basis):
 
 def calculate_metrics(t, U, current_A, device_type, normalization_basis,
                       active_mass_g=None, electrolyte_volume_dm3=None):
-    "Compute gamma, energy and power from one discharge curve. ""
+    "Compute gamma, energy and power from one discharge curve. "
     discharge_time = t[-1] - t[0]
     U_start = U[0]
     U_end = U[-1]
