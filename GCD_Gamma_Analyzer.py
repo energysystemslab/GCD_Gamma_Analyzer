@@ -411,9 +411,8 @@ def collect_basic_inputs():
 def collect_normalization_inputs(device_type):
     "Ask for mass or electrolyte volume, depending on the device."
 
-    Returns (basis, active_mass_g, electrolyte_volume_dm3); the value that
-    doesn't apply stays None.
-    "
+    Returns (basis, active_mass_g, electrolyte_volume_dm3); 
+    "the value that doesn't apply stays None."
     st.subheader("Normalization")
 
     normalization_basis = "Active mass"
