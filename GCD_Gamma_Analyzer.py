@@ -140,8 +140,7 @@ def get_units(device_type, normalization_basis):
 
 def calculate_metrics(t, U, current_A, device_type, normalization_basis,
                       active_mass_g=None, electrolyte_volume_dm3=None):
-    """Compute gamma, energy and power from one discharge curve.
-    """
+    "Compute gamma, energy and power from one discharge curve. ""
     discharge_time = t[-1] - t[0]
     U_start = U[0]
     U_end = U[-1]
@@ -149,7 +148,7 @@ def calculate_metrics(t, U, current_A, device_type, normalization_basis,
     # Measured area, trapezoidal rule.
     area_real = trapz(U, t)
 
-    # Ideal reference area -- shape depends on the device.
+    # Ideal reference area  shape depends on the device.
     if device_type == "Supercapacitor":
         area_ideal = U_start * discharge_time / 2      # triangle
     else:
@@ -410,7 +409,7 @@ def collect_basic_inputs():
 
 
 def collect_normalization_inputs(device_type):
-    "Ask for mass or electrolyte volume, depending on the device.
+    "Ask for mass or electrolyte volume, depending on the device."
 
     Returns (basis, active_mass_g, electrolyte_volume_dm3); the value that
     doesn't apply stays None.
