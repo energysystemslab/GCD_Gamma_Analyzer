@@ -4,18 +4,14 @@ Handles electrochemical energy storage devices. For a given discharge
 curve it computes the gamma factor, the real and ideal energy, and the
 corresponding power, then draws the energy region plot and a Ragone plot.
 Results (figures and a summary table) can be exported as PDF.
-Run with: streamlit run gcd_analyzer.py
-"""
+Run with: streamlit run gcd_analyzer.py"""
 
 import io
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 import streamlit.components.v1 as components
-
-
 st.set_page_config(page_title="GCD Analyzer", layout="centered")
 
 
