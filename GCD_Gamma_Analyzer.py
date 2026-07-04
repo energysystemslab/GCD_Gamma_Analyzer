@@ -4,7 +4,6 @@
 # ideal energy, and the power, and draws the energy region plot and a
 # Ragone plot. The figures and a summary table can be saved as PDF.
 # Run with: streamlit run GCD_Gamma_Analyzer.py
-
 import io
 import numpy as np
 import pandas as pd
