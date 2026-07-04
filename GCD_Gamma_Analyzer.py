@@ -1,11 +1,9 @@
 """GCD Analyzer
 Streamlit app for analyzing galvanostatic charge-discharge (GCD) curves.
-
 Handles electrochemical energy storage devices. For a given discharge
 curve it computes the gamma factor, the real and ideal energy, and the
 corresponding power, then draws the energy region plot and a Ragone plot.
 Results (figures and a summary table) can be exported as PDF.
-
 Run with: streamlit run gcd_analyzer.py
 """
 
@@ -58,11 +56,9 @@ def enable_print_styles():
     st.markdown(_PRINT_CSS, unsafe_allow_html=True)
 
 def print_button(label):
-    """A small button that opens the browser's print-to-PDF dialog.
-
+    """A button that opens the browser's print-to-PDF dialog.
     Rendered as an HTML component because it needs to call window.print()
-    on the parent document, which plain Streamlit widgets can't do.
-    """
+    on the parent document, which  Streamlit can't do."""
     components.html(
         f"""
         <button onclick="window.parent.print()"
@@ -88,10 +84,6 @@ def load_data(uploaded_file):
 
 def clean_series(t, U):
     """Drop NaNs and make sure time is increasing.
-
-    Real exported files sometimes carry a trailing blank row or a stray
-    NaN, and occasionally the time column comes in reversed. We fix those
-    quietly rather than blowing up mid-calculation.
     """
     t = np.asarray(t, dtype=float)
     U = np.asarray(U, dtype=float)
@@ -111,13 +103,12 @@ def clean_series(t, U):
 
 def get_units(device_type, normalization_basis):
     """Return the display names and units for the chosen device/basis.
-
     Supercapacitors and mass-normalized batteries are per kg, a battery
     normalized by electrolyte volume is reported per liter (dm3).
-    Three flavors of each unit are provided so it looks right everywhere:
-      *_unit         -> plain ASCII, safe for CSV files
-      *_unit_disp    -> Unicode superscript, for on-screen / PDF text
-      *_unit_math    -> matplotlib mathtext, for plot axis labels
+    Three of each unit are provided so it looks right everywhere:
+      *_unit          for CSV files
+      *_unit_disp    Unicode superscript, for on-screen / PDF text
+      *_unit_math   matplotlib mathtext, for plot axis labels
     """
     per_volume = (
         device_type == "Battery"
@@ -260,7 +251,7 @@ def build_ragone_figure(energy_value, power_value, energy_unit, power_unit,
 
 
 def build_table_figure(results, units):
-    """Render the summary table as its own figure, so it can go to PDF.
+    """Render the summary table as figure, so it can go to PDF.
     """
     # Short symbolic labels, matching the table used in the manuscript.
     rows = [
@@ -288,7 +279,7 @@ def build_table_figure(results, units):
 
 
 def figure_to_pdf_bytes(fig):
-    """Serialize a matplotlib figure to PDF bytes for st.download_button."""
+    "Serialize a matplotlib figure to PDF bytes for st.download_button."
     buffer = io.BytesIO()
     fig.savefig(buffer, format="pdf", bbox_inches="tight")
     buffer.seek(0)
@@ -296,7 +287,7 @@ def figure_to_pdf_bytes(fig):
 
 
 def results_to_dataframe(results, units):
-    """Flat table of the numbers, handy for the CSV download."""
+    "Flat table of the numbers, handy for the CSV download."
     # The CSV is read on its own, away from the app, so spell things out
     # and keep units ASCII (Wh dm-3) so they survive any spreadsheet import.
     return pd.DataFrame(
@@ -345,7 +336,7 @@ def display_results(results, units):
 
 
 def generate_plots(t, U, results, units, device_type):
-    """Draw both figures, show them, and offer PDF downloads."""
+    """Draw both figures, show them, and PDF downloads."""
     energy_fig = build_energy_figure(
         t=t,
         U=U,
@@ -383,7 +374,7 @@ def generate_plots(t, U, results, units, device_type):
     st.subheader("Summary table")
     st.pyplot(table_fig)
 
-    # Two ways to grab the table: as a PDF (for the paper) or CSV (for reuse).
+    # Two ways to haver the table: as a PDF (for the paper) or CSV (for reuse).
     col_pdf, col_csv = st.columns(2)
     with col_pdf:
         st.download_button(
@@ -423,11 +414,11 @@ def collect_basic_inputs():
 
 
 def collect_normalization_inputs(device_type):
-    """Ask for mass or electrolyte volume, depending on the device.
+    "Ask for mass or electrolyte volume, depending on the device.
 
     Returns (basis, active_mass_g, electrolyte_volume_dm3); the value that
     doesn't apply stays None.
-    """
+    "
     st.subheader("Normalization")
 
     normalization_basis = "Active mass"
@@ -478,7 +469,6 @@ def collect_normalization_inputs(device_type):
 
 
 # Main
-
 
 def main():
     enable_print_styles()
