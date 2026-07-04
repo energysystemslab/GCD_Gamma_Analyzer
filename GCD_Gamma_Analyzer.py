@@ -1,10 +1,9 @@
-"""GCD Analyzer
-Streamlit app for analyzing galvanostatic charge-discharge (GCD) curves.
-Handles electrochemical energy storage devices. For a given discharge
-curve it computes the gamma factor, the real and ideal energy, and the
-corresponding power, then draws the energy region plot and a Ragone plot.
-Results (figures and a summary table) can be exported as PDF.
-Run with: streamlit run gcd_analyzer.py"""
+# GCD Analyzer
+# Streamlit app to analyze galvanostatic charge-discharge (GCD) curves. Handles electrochemical energy storage devices.
+# For a given discharge curve it computes the gamma factor, the real and
+# ideal energy, and the power, and draws the energy region plot and a
+# Ragone plot. The figures and a summary table can be saved as PDF.
+# Run with: streamlit run GCD_Gamma_Analyzer.py
 
 import io
 import numpy as np
@@ -12,25 +11,23 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 import streamlit.components.v1 as components
+
 st.set_page_config(page_title="GCD Analyzer", layout="centered")
 
 
-# NumPy 2.0 renamed trapz to trapezoid. so it can Keep working on both old and new.
+# NumPy 2.0 renamed trapz to trapezoid, so this keeps it working on both.
 try:
     trapz = np.trapezoid
 except AttributeError:
     trapz = np.trapz
 
 
-
-# Print / PDF export of the interface
-# 
-
+#  Print / PDF export of the interface 
 
 _PRINT_CSS = """
 <style>
 @media print {
-    /* Hide Streamlit chrome that shouldn't appear in the exported PDF. */
+    /* Hide the Streamlit menus so they don't show up in the PDF. */
     header[data-testid="stHeader"],
     #MainMenu,
     footer,
@@ -38,7 +35,6 @@ _PRINT_CSS = """
     .gcd-print-hide {
         display: none !important;
     }
-    /* Give the printed page a little breathing room. */
     .block-container {
         padding-top: 1rem !important;
     }
@@ -48,13 +44,12 @@ _PRINT_CSS = """
 
 
 def enable_print_styles():
-    """Inject the print stylesheet once per page load."""
+    # Add the print stylesheet to the page.
     st.markdown(_PRINT_CSS, unsafe_allow_html=True)
 
 def print_button(label):
-    """A button that opens the browser's print-to-PDF dialog.
-    Rendered as an HTML component because it needs to call window.print()
-    on the parent document, which  Streamlit can't do."""
+    # A button that opens the browser print-to-PDF dialog. I do it as an
+    # HTML component because it needs window.print() on the parent page.
     components.html(
         f"""
         <button onclick="window.parent.print()"
@@ -68,10 +63,10 @@ def print_button(label):
     )
 
 
-# File loading
+# ------------------ File loading
 
 def load_data(uploaded_file):
-    """Read an uploaded CSV or Excel file into a DataFrame."""
+    # Read a CSV or Excel file into a DataFrame.
     name = uploaded_file.name.lower()
     if name.endswith(".csv"):
         return pd.read_csv(uploaded_file)
@@ -79,33 +74,30 @@ def load_data(uploaded_file):
 
 
 def clean_series(t, U):
-    """Drop NaNs and make sure time is increasing.
-    """
+    # Drop NaNs and make sure time goes forward.
     t = np.asarray(t, dtype=float)
     U = np.asarray(U, dtype=float)
 
     good = ~(np.isnan(t) | np.isnan(U))
     t, U = t[good], U[good]
 
-    # If time runs backwards, flip both arrays together.
+    # If the time column is reversed, flip both arrays.
     if len(t) > 1 and t[-1] < t[0]:
         t, U = t[::-1], U[::-1]
 
     return t, U
 
 
-
-# Labels and units
+# ------------------ Labels and units
 
 def get_units(device_type, normalization_basis):
-    """Return the display names and units for the chosen device/basis.
-    Supercapacitors and mass-normalized batteries are per kg, a battery
-    normalized by electrolyte volume is reported per liter (dm3).
-    Three of each unit are provided so it looks right everywhere:
-      *_unit          for CSV files
-      *_unit_disp    Unicode superscript, for on-screen / PDF text
-      *_unit_math   matplotlib mathtext, for plot axis labels
-    """
+    # Names and units for the chosen device and basis.
+    # Supercapacitors and mass-normalized batteries are per kg a battery
+    # normalized by electrolyte volume is per liter (dm3).
+    # I keep three versions of each unit:
+    #   *_unit       for the CSV file
+    #   *_unit_disp  Unicode superscript, for oPDF 
+    #   *_unit_math  matplotlib mathtext, for the plot axes
     per_volume = (
         device_type == "Battery"
         and normalization_basis == "Electrolyte volume"
@@ -135,20 +127,19 @@ def get_units(device_type, normalization_basis):
     }
 
 
-# Core calculation
-# ---------------------------------------------------------------------------
+# Core calculation ------------------
 
 def calculate_metrics(t, U, current_A, device_type, normalization_basis,
                       active_mass_g=None, electrolyte_volume_dm3=None):
-    "Compute gamma, energy and power from one discharge curve. "
+    # Compute gamma, energy and power from one discharge curve.
     discharge_time = t[-1] - t[0]
     U_start = U[0]
     U_end = U[-1]
 
-    # Measured area, trapezoidal rule.
+    # Measured area under the curve, trapezoidal rule.
     area_real = trapz(U, t)
 
-    # Ideal reference area  shape depends on the device.
+    # Ideal reference area, shape depends on the device.
     if device_type == "Supercapacitor":
         area_ideal = U_start * discharge_time / 2      # triangle
     else:
@@ -156,22 +147,22 @@ def calculate_metrics(t, U, current_A, device_type, normalization_basis,
 
     gamma = area_real / area_ideal
 
-    # E = I * integral(U dt), still in joules at this point.
+    # E = I * integral(U dt), in joules for now.
     energy_real_J = current_A * area_real
     energy_ideal_J = current_A * area_ideal
 
-    # What we divide by: mass in kg, or volume already in dm3.
+    # What divide by mass in kg, or volume already in dm3.
     if device_type == "Supercapacitor" or normalization_basis == "Active mass":
         norm_factor = active_mass_g / 1000.0           # g -> kg
     else:
         norm_factor = electrolyte_volume_dm3
 
-    # Joules -> watt-hours (/3600), then normalize.
+    # Joules to watt-hours (/3600), then normalize.
     energy_real = (energy_real_J / 3600) / norm_factor
     energy_ideal = (energy_ideal_J / 3600) / norm_factor
     energy_corrected = gamma * energy_ideal
 
-    # Average power over the discharge, time expressed in hours.
+    # Average power over the discharge, time in hours.
     discharge_time_h = discharge_time / 3600
     power_real = energy_real / discharge_time_h
 
@@ -189,12 +180,10 @@ def calculate_metrics(t, U, current_A, device_type, normalization_basis,
     }
 
 
-
-# Plots
+# ------------------ Plots
 
 def build_energy_figure(t, U, device_type, discharge_time, U_start):
-    """Measured curve plus the ideal and 'lost' energy regions.
-    """
+    # Measured curve plus the ideal and lost energy regions.
     fig, ax = plt.subplots(figsize=(7, 5))
 
     ax.plot(t, U, color="black", linewidth=2, label="Experimental curve")
@@ -202,7 +191,7 @@ def build_energy_figure(t, U, device_type, discharge_time, U_start):
     # Area under the real curve = energy actually delivered.
     ax.fill_between(t, U, color="#cce5ff", alpha=0.8, label="Real energy")
 
-    # Ideal curve on its own dense grid.
+    # Ideal curve .
     t_ideal = np.linspace(0, discharge_time, 500)
     if device_type == "Supercapacitor":
         U_ideal = U_start * (1 - t_ideal / discharge_time)   # triangle
@@ -212,7 +201,7 @@ def build_energy_figure(t, U, device_type, discharge_time, U_start):
     ax.fill_between(t_ideal, U_ideal, color="#d4edda", alpha=0.5,
                     label="Ideal energy")
 
-    # Gap between ideal and real: the part lost to non-ideality.
+    # The gap between ideal and real is the part lost.
     U_on_ideal_grid = np.interp(t_ideal, t, U)
     ax.fill_between(t_ideal, U_on_ideal_grid, U_ideal,
                     where=(U_ideal > U_on_ideal_grid),
@@ -228,13 +217,13 @@ def build_energy_figure(t, U, device_type, discharge_time, U_start):
 
 def build_ragone_figure(energy_value, power_value, energy_unit, power_unit,
                         device_name):
-    """Single point on a log-log Ragone diagram (energy vs power)."""
+    #  Ragone plot (energy vs power).
     fig, ax = plt.subplots(figsize=(6, 5))
 
     ax.scatter(energy_value, power_value, s=120, marker="o")
     ax.text(energy_value, power_value, device_name, fontsize=10)
 
-    # Ragone plots are conventionally log-log.
+    # Ragone plots are log-log by convention.
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel(f"Energy density ({energy_unit})")
@@ -246,9 +235,8 @@ def build_ragone_figure(energy_value, power_value, energy_unit, power_unit,
 
 
 def build_table_figure(results, units):
-    """Render the summary table as figure, so it can go to PDF.
-    """
-    # Short symbolic labels, matching the table used in the manuscript.
+    #  summary table as a figure so it can be saved as PDF.
+    # Short labels, same as the table in the manuscript.
     rows = [
         ["\u03b3", "-", f"{results['gamma']:.4f}"],
         ["E_real", units["energy_unit_disp"], f"{results['energy_real']:.4f}"],
@@ -274,7 +262,7 @@ def build_table_figure(results, units):
 
 
 def figure_to_pdf_bytes(fig):
-    "Serialize a matplotlib figure to PDF bytes for st.download_button."
+    # Turn a matplotlib figure into PDF for the download.
     buffer = io.BytesIO()
     fig.savefig(buffer, format="pdf", bbox_inches="tight")
     buffer.seek(0)
@@ -282,9 +270,7 @@ def figure_to_pdf_bytes(fig):
 
 
 def results_to_dataframe(results, units):
-    "Flat table of the numbers, handy for the CSV download."
-    # The CSV is read on its own, away from the app, so spell things out
-    # and keep units ASCII (Wh dm-3) so they survive any spreadsheet import.
+    #  table of the numbers for the CSV download.
     return pd.DataFrame(
         {
             "Quantity": [
@@ -313,11 +299,10 @@ def results_to_dataframe(results, units):
     )
 
 
-
-# Results display
+#Results display 
 
 def display_results(results, units):
-    """Numeric results as a readable block."""
+    # Show the numbers
     st.subheader("Results")
     st.write(f"\u03b3 = {results['gamma']:.4f}")
     st.write(f"Real {units['energy_name'].lower()}: "
@@ -331,7 +316,7 @@ def display_results(results, units):
 
 
 def generate_plots(t, U, results, units, device_type):
-    """Draw both figures, show them, and PDF downloads."""
+    # Build the figures, show them, and add the PDF/CSV download 
     energy_fig = build_energy_figure(
         t=t,
         U=U,
@@ -369,7 +354,7 @@ def generate_plots(t, U, results, units, device_type):
     st.subheader("Summary table")
     st.pyplot(table_fig)
 
-    # Two ways to haver the table: as a PDF (for the paper) or CSV (for reuse).
+    # Table can be saved as PDF (for the paper) or CSV 
     col_pdf, col_csv = st.columns(2)
     with col_pdf:
         st.download_button(
@@ -388,11 +373,11 @@ def generate_plots(t, U, results, units, device_type):
             mime="text/csv",
         )
 
-# Input helpers
 
+#  Input helpers
 
 def collect_basic_inputs():
-    """Current, device type and the two column names, in two columns."""
+    # Current, device type and the two column names, in two columns.
     col1, col2 = st.columns(2)
 
     with col1:
@@ -409,10 +394,9 @@ def collect_basic_inputs():
 
 
 def collect_normalization_inputs(device_type):
-    "Ask for mass or electrolyte volume, depending on the device."
-
-    Returns (basis, active_mass_g, electrolyte_volume_dm3); 
-    "the value that doesn't apply stays None."
+    # Ask for mass or electrolyte volume, depending on the device.
+    # Returns (basis, active_mass_g, electrolyte_volume_dm3) the value
+    # that does not apply stays None.
     st.subheader("Normalization")
 
     normalization_basis = "Active mass"
@@ -435,8 +419,8 @@ def collect_normalization_inputs(device_type):
                                         value=0.0004, format="%.6f")
         return normalization_basis, active_mass_g, electrolyte_volume_dm3
 
-    # Volume basis. Flow-battery electrolyte is usually dispensed per pole,
-    # so we offer that and convert, but also accept a straight total volume.
+    # Volume basis. Flow-battery electrolyte is usually measured per pole,
+    #  offer that and convert, but also accept a total volume directly.
     volume_unit = st.selectbox(
         "Electrolyte volume unit",
         ["dm3 (total)", "mL (each pole / electrode)"],
@@ -461,8 +445,7 @@ def collect_normalization_inputs(device_type):
     return normalization_basis, active_mass_g, electrolyte_volume_dm3
 
 
-
-# Main
+# ------------------ Main ------------------
 
 def main():
     enable_print_styles()
@@ -474,13 +457,13 @@ def main():
     uploaded_file = st.file_uploader("Upload CSV or Excel file",
                                      type=["csv", "xlsx"])
 
-    # Collect every setting first so the page layout doesn't jump around.
+    # Collect all settings first so the layout stays stable.
     current_A, device_type, time_col, voltage_col = collect_basic_inputs()
     norm_basis, active_mass_g, electrolyte_volume_dm3 = \
         collect_normalization_inputs(device_type)
 
-    # Export of the interface as-is (before any data is loaded). Wrapped in a
-    # container we can hide from the print itself so the button doesn't show.
+
+    # hide from the print so the button itself does not appear in the PDF.
     with st.container():
         st.markdown('<div class="gcd-print-hide">', unsafe_allow_html=True)
         print_button("Save interface as PDF")
@@ -498,12 +481,11 @@ def main():
     except Exception as err:
         st.error(f"Error reading file:\n{err}")
         return
-
-    # Only crunch numbers once the user asks for it.
+    # Only run the calculation when the user clicks the button.
     if not st.button("Run analysis"):
         return
 
-    # Grab the two columns we need.
+    # Grab the two columns  needed.
     try:
         t = df[time_col].to_numpy()
         U = df[voltage_col].to_numpy()
@@ -532,8 +514,7 @@ def main():
     display_results(results, units)
     generate_plots(t, U, results, units, device_type)
 
-    # Export of the full page after analysis: preview + results + plots,
-    # exactly as shown on screen.
+    # Save the full page after analysis: preview + results + plots.
     st.markdown('<div class="gcd-print-hide">', unsafe_allow_html=True)
     print_button("Save full results page as PDF")
     st.markdown('</div>', unsafe_allow_html=True)
