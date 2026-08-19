@@ -11,11 +11,12 @@ The method behind the tool comes from Da Silva et al., Dissipative effects in no
 
 
 The tool runs online as a web application (no installation needed): https://gcdgammaanalyzer-pcpptkoup4uetneztas69p.streamlit.app/ . The instructions below are for running it locally.
+
 needed:
 
-\-Python 3.9 or newer
+-Python 3.9 or newer
 
-\-The packages listed in "requirements.txt"
+-The packages listed in "requirements.txt"
 
 
 # Installation instructions
