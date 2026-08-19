@@ -1,0 +1,6 @@
+Quantity,Symbol,Unit,Value
+gamma (deviation coefficient),gamma,-,0.8377517037330632
+Real specific energy,E_real,Wh kg-1,51.78462673611111
+Ideal specific energy,E_ideal,Wh kg-1,61.81381249999999
+Corrected energy (gamma x E_ideal),<E>,Wh kg-1,51.78462673611111
+Real specific power,P_real,W kg-1,941.5386679292928
