@@ -1,5 +1,5 @@
 # GCD-γ Analyzer
-
+Current version: 1.0
 
 A web app to analyze galvanostatic charge-discharge (GCD) curves of electrochemical energy storage devices. From a discharge
 curve it computes the gamma (γ) deviation coefficient, the real and ideal
