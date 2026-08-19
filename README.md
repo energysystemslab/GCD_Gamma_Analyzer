@@ -6,8 +6,10 @@ curve it computes the gamma (γ) deviation coefficient, the real and ideal
 energy, and the power. It also plots the energy  and a Ragone curves,
 and it is possible to download the figures and a results table as PDF.
 
-The method behind the tool:
+The method behind the tool comes from Da Silva et al., Dissipative effects in nonideal supercapacitors and batteries, Journal of Energy Storage 69 (2023) 107985.
 
+
+The tool runs online as a web application (no installation needed): https://gcdgammaanalyzer-pcpptkoup4uetneztas69p.streamlit.app/ . The instructions below are for running it locally.
 needed:
 
 \-Python 3.9 or newer
@@ -24,7 +26,7 @@ pip install -r requirements.txt
 
 # Run instructions
 
-streamlit run gcd\_analyzer.py
+streamlit run GCD_Gamma_Analyzer.py
 
 The app opens in the  browser.
 
@@ -56,10 +58,14 @@ Example:
 
 ## Example data
 
-Sample files are in the "examples/" folder:
+
+Sample files are in the "examples/" folder. Each example includes the input file and the expected output (γ, energies, power). Upload the input file, set the parameters below, and check that the tool reproduces the expected values.:
 
 * "Niobium\_pentoxide\_GCDs\_1V\_1dot25\_A\_per\_g\_current\_app\_0dot0005A\_0.0004g.csv" — the pseudocapacitor case from the paper.
 * "Dados de Descarga RFB 04 modulos Fe-Fe\_0.001A\_400ml\_each\_pole.csv" — the iron redox flow battery case.
+
+Pseudocapacitor: device = Supercapacitor, current = 0.0005 A, active mass = 0.0004 g → expected γ = 0.84.
+Redox flow battery: device = Battery, volume basis, 400 mL/pole, current = 0.001 A → expected γ = 0.7854.
 
 # License
 
