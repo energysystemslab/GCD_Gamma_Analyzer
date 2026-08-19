@@ -1,0 +1,5 @@
+Quantity,Symbol,Unit,Value
+gamma (deviation coefficient),gamma,-,1
+Real volumetric energy density,E_real,Wh dm-3,1.041666667
+Ideal volumetric energy density,E_ideal,Wh dm-3,1.041666667
+Corrected energy (gamma x E_ideal),<E>,Wh dm-3,1.041666667
