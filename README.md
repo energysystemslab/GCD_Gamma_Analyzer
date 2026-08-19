@@ -5,6 +5,7 @@ A web app to analyze galvanostatic charge-discharge (GCD) curves of electrochemi
 curve it computes the gamma (γ) deviation coefficient, the real and ideal
 energy, and the power. It also plots the energy  and a Ragone curves,
 and it is possible to download the figures and a results table as PDF.
+Note: the tool integrates the voltage curve as provided, so the initial IR drop is included in the result. To exclude it, trim the input data to start after the drop.
 
 The method behind the tool comes from Da Silva et al., Dissipative effects in nonideal supercapacitors and batteries, Journal of Energy Storage 69 (2023) 107985.
 
