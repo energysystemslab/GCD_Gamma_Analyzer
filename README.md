@@ -15,20 +15,20 @@ needed:
 \-The packages listed in "requirements.txt"
 
 
-# Install
+# Installation instructions
 
 git clone https://github.com/energysystemslab/GCD_Gamma_Analyzer.git
 cd GCD_Gamma_Analyzer
 pip install -r requirements.txt
 
 
-# Run
+# Run instructions
 
 streamlit run gcd\_analyzer.py
 
 The app opens in the  browser.
 
-# How to use
+#  Tutorial
 
 1. Upload a CSV or Excel file with your discharge data.
 2. Type the name of the time column and the voltage column.
