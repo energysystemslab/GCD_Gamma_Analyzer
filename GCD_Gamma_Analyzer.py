@@ -1,4 +1,4 @@
-# GCD Analyzer
+# GCD Analyzer V 1.1
 # Streamlit app to analyze galvanostatic charge-discharge (GCD) curves. Handles electrochemical energy storage devices.
 # For a given discharge curve it computes the gamma factor, the real and
 # ideal energy, and the power, and draws the energy region plot and a
@@ -85,6 +85,29 @@ def clean_series(t, U):
         t, U = t[::-1], U[::-1]
 
     return t, U
+
+
+def validate_inputs(t, U, device_type, normalization_basis,
+                    active_mass_g, electrolyte_volume_dm3):
+    # Check the numbers make sense before calculating. Returns an error
+    # message as a string, or None if everything is fine.
+    discharge_time = t[-1] - t[0]
+    if discharge_time <= 0:
+        return ("The discharge time must be positive. "
+                "Check that the time column increases.")
+
+    if device_type == "Supercapacitor" or normalization_basis == "Active mass":
+        if active_mass_g is None or active_mass_g <= 0:
+            return "The active mass must be greater than zero."
+    else:
+        if electrolyte_volume_dm3 is None or electrolyte_volume_dm3 <= 0:
+            return "The electrolyte volume must be greater than zero."
+
+    if U[0] <= 0:
+        return ("The starting voltage must be positive. "
+                "Check the voltage column.")
+
+    return None
 
 
 # ------------------ Labels and units
@@ -496,6 +519,18 @@ def main():
     t, U = clean_series(t, U)
     if len(t) < 2:
         st.error("Not enough valid data points after cleaning.")
+        return
+
+    # Check the current and the parameters make sense before calculating.
+    if current_A <= 0:
+        st.error("The applied current must be greater than zero.")
+        return
+
+    param_error = validate_inputs(
+        t, U, device_type, norm_basis, active_mass_g, electrolyte_volume_dm3
+    )
+    if param_error is not None:
+        st.error(param_error)
         return
 
     results = calculate_metrics(
