@@ -61,7 +61,8 @@ Example:
 ## Example data
 
 
-Sample files are in the "examples/" folder. Each example includes the input file and the expected output (γ, energies, power). Upload the input file, set the parameters below, and check that the tool reproduces the expected values.:
+Some sample files are in the "examples/" folder. Each example includes the input file and the expected output (γ, energies, power).To run: upload the input file, set the parameters below, and check that the tool reproduces the expected values
+For exemple:
 
 * "Niobium\_pentoxide\_GCDs\_1V\_1dot25\_A\_per\_g\_current\_app\_0dot0005A\_0.0004g.csv" — the pseudocapacitor case from the paper.
 * "Dados de Descarga RFB 04 modulos Fe-Fe\_0.001A\_400ml\_each\_pole.csv" — the iron redox flow battery case.
