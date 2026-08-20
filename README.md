@@ -18,6 +18,14 @@ needed:
 
 -The packages listed in "requirements.txt"
 
+# Input checks
+Before running the calculation, the tool cleans and checks the data.
+It removes missing values, corrects the time order if it is reversed,
+and shows a clear message if the columns are not found or if there are
+too few valid points. It also checks that the applied current, the
+active mass or electrolyte volume, and the discharge time are greater
+than zero, and that the starting voltage is positive. If a value is
+not valid, the tool shows a message instead of giving a wrong result.
 
 # Installation instructions
 
